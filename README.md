@@ -57,14 +57,15 @@ Options can be added & remove to change the folder structure used for export.  U
 
 Options available include:
 
-| Option                   | Description                             |
-|--------------------------|-----------------------------------------|
-| ```--model```            | Divide by test target model             | 
-| ```--os```               | Divide by test target operating system  | 
-| ```--test-plan-config``` | Divide by test run configuration        |
-| ```--language```         | Divide by test language                 |
-| ```--region```           | Divide by test region                   |
-| ```--test```             | Divide by test                          |
+| Option                         | Description                                                  |
+|--------------------------------|--------------------------------------------------------------|
+| ```--model```                  | Divide by test target model                                  | 
+| ```--os```                     | Divide by test target operating system                       | 
+| ```--test-plan-config```       | Divide by test run configuration                             |
+| ```--language```               | Divide by test language                                      |
+| ```--region```                 | Divide by test region                                        |
+| ```--test```                   | Divide by test                                               |
+| ```--in-activity-identifier``` | Divide by test attachment in activity identifier (light,dark)|
 
 See ```xcparse screenshots --help``` for a full-listing
 
