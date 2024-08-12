@@ -40,6 +40,7 @@ final class xcparseTests: XCTestCase {
         ("testDivideByLanguage",testDivideByLanguage),
         ("testDivideByRegion",testDivideByRegion),
         ("testDivideByTest",testDivideByTest),
+        ("testDivideByActivityIdentifier",testDivideByActivityIdentifier),
         ("testGetTestsWithFailure",testGetTestsWithFailure),
         ("testScreenshotsHEIC", testScreenshotsHEIC),
         ("testScreenshotsMissingInput", testScreenshotsMissingInput),
@@ -376,6 +377,22 @@ final class xcparseTests: XCTestCase {
         XCTAssertTrue(fileUrls.count == 3)
         XCTAssertTrue(fileUrls.filter{$0.path.contains("MyAutomation_darkMapView")}.count == 3)
 
+    }
+
+    func testDivideByActivityIdentifier() throws {
+        guard #available(macOS 10.13, *) else {
+            return
+        }
+
+        let file = try Resource(name: "testSuccess", type: "xcresult")
+        xcparseProcess.arguments = ["screenshots","--in-activity-identifier",file.url.path,temporaryOutputDirectoryURL.path]
+
+        try runAndWaitForXCParseProcess()
+
+        //  check for files under light inActivityIdentifier<.
+        let fileUrls = FileManager.default.listFiles(path: temporaryOutputDirectoryURL.appendingPathComponent("light").path)
+        XCTAssertTrue(fileUrls.count == 6)
+        XCTAssertTrue(fileUrls.filter{$0.path.contains("_1_")}.count == 6)
     }
 
     func testGetTestsWithFailure() throws {

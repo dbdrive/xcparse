@@ -27,6 +27,7 @@ struct AttachmentExportOptions {
     var divideByLanguage: Bool = false
     var divideByRegion: Bool = false
     var divideByTest: Bool = false
+    var divideByInActivityIdentifier: Bool = false
 
     var xcresulttoolCompatability = XCResultToolCompatability()
 
@@ -131,6 +132,20 @@ struct AttachmentExportOptions {
                 return baseURL.appendingPathComponent(asciiSummaryIdentifier, isDirectory: true)
             } else {
                 return baseURL.appendingPathComponent(summaryIdentifier, isDirectory: true)
+            }
+        } else {
+            return baseURL
+        }
+    }
+
+    func screenshotDirectoryURL(_ inActivityIdentifier: Int, forBaseURL baseURL: Foundation.URL) -> Foundation.URL {
+        if self.divideByInActivityIdentifier == true {
+            let folderName = String(inActivityIdentifier)
+            if self.xcresulttoolCompatability.supportsUnicodeExportPaths != true {
+                let asciiFolderName = folderName.lossyASCIIString() ?? folderName
+                return baseURL.appendingPathComponent(asciiFolderName, isDirectory: true)
+            } else {
+                return baseURL.appendingPathComponent(folderName, isDirectory: true)
             }
         } else {
             return baseURL
@@ -251,11 +266,23 @@ class XCPParser {
                             continue
                         }
 
-                        // Now that we know what we want to export, save it to the dictionary so we can have all the exports
-                        // done at once with one progress bar per URL
-                        var existingAttachmentsForURL = exportURLsToAttachments[testSummaryScreenshotURL.path] ?? []
-                        existingAttachmentsForURL.append(contentsOf: filteredAttachments)
-                        exportURLsToAttachments[testSummaryScreenshotURL.path] = existingAttachmentsForURL
+                        let inActivityIdentifiers = filteredAttachments
+                            .compactMap { $0.inActivityIdentifier }
+                            .reduce(into: Set<Int>()) { $0.insert($1) }
+
+                        for inActivityIdentifier in inActivityIdentifiers {
+
+                            let inActivityIdentifierAttachments = filteredAttachments.filter { $0.inActivityIdentifier == inActivityIdentifier }
+                            let inActivityIdentifierScreenshotURL = options.screenshotDirectoryURL(inActivityIdentifier, forBaseURL: testSummaryScreenshotURL)
+                            if inActivityIdentifierScreenshotURL.createDirectoryIfNecessary(createIntermediates: true) != true {
+                                continue
+                            }
+                            // Now that we know what we want to export, save it to the dictionary so we can have all the exports
+                            // done at once with one progress bar per URL
+                            var existingAttachmentsForURL = exportURLsToAttachments[inActivityIdentifierScreenshotURL.path] ?? []
+                            existingAttachmentsForURL.append(contentsOf: inActivityIdentifierAttachments)
+                            exportURLsToAttachments[inActivityIdentifierScreenshotURL.path] = existingAttachmentsForURL
+                        }
                     }
 
                 }
